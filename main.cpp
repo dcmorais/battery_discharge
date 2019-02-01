@@ -95,7 +95,9 @@ int main() {
     send_rs232(cport_nr, command);
 
     // Sets the CC level
-    printf("- Sets the CC level\n");
+    printf("- Sets the curr level\n");
+    printf("-- Type the current: ");
+    std::cin >> Discharge_at;
     sprintf_s(aux, "CURRENT:LEVEL %f", Discharge_at);
     strcpy_s(command, aux);
     printf("-- Send command: %s\n", command);
