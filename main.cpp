@@ -40,7 +40,7 @@ int main() {
     // | Variables
     // +-------------------
     // RS-232 Configuration
-    int i, n,
+    int n,
             cport_nr=0,        /* /dev/ttys0 (com1 on windows) */
             bdrate=9600;       /* 9600 baud */
 
