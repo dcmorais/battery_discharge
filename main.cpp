@@ -59,6 +59,7 @@ int main() {
     // +-----------------------
     // | Opening the COM port
     // +-----------------------
+    printf("Opening the COM port\n");    
     if(RS232_OpenComport(cport_nr, bdrate, mode))
     {
         printf("can not open comport\n");
@@ -70,21 +71,30 @@ int main() {
     // +--------------------------
     // | Configure the DC charge
     // +--------------------------
+    printf("Configure the DC charge\n");
     // Selects Chan 1; Disables input
+    printf("- Selects Chan 1 and Disables input\n");
     strcpy(command, "CHAN 1;:INPUT OFF");
+    printf("-- Send command: %s\n", command);
     send_rs232(cport_nr, command);
 
     // Sets CC mode
+    printf("- Sets CC mode\n");
     strcpy(command, "FUNCTION CURRENT");
+    printf("-- Send command: %s\n", command);
     send_rs232(cport_nr, command);
 
     // Sets the CC level
+    printf("- Sets the CC level\n");
     sprintf(aux, "CURRENT:LEVEL %f", Discharge_at);
     strcpy(command, aux);
+    printf("-- Send command: %s\n", command);
     send_rs232(cport_nr, command);
 
     // Enables the input
+    printf("- Enables input\n");
     strcpy(command, "INPUT ON");
+    printf("-- Send command: %s\n", command);
     send_rs232(cport_nr, command);
 
     // +--------------------------
@@ -92,23 +102,31 @@ int main() {
     // +--------------------------
     // Starts test routine that continuously measures and reads
     // back the voltage and current until batteries are completely discharged
+    
+    printf("Start test\n");
     while(Battery_volt>Eodv) {
         // Measure the battery voltage
+        printf("- Measure the battery voltage\n");
         strcpy(command, "MEASURE:VOLTAGE?");
+        printf("-- Send command: %s\n", command);
         send_rs232(cport_nr, command);
 
-        // Answer from DC Charge
+        // Get answer  from DC Charge
+        printf("- Get answer  from DC Charge\n");
         n = read_rs232(cport_nr, buf, 4095);
-        printf("Total cell voltage: %s\n", (char *) buf);
+        printf("- Total cell voltage: %s\n", (char *) buf);
         Battery_volt = std::stof((char *)buf);
 
 
         // Measure the current
+        printf("- Measure the current\n");
         strcpy(command, "MEASURE:CURRENT?");
+        printf("-- Send command: %s\n", command);
         send_rs232(cport_nr, command);
 
-        // Answer from DC Charge
+        // Get answer  from DC Charge
+        printf("- Get answer  from DC Charge\n");
         n = read_rs232(cport_nr, buf, 4095);
-        printf("Actual current: %s\n", (char *) buf);
+        printf("- Actual current: %s\n", (char *) buf);
     }
 }
