@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cstring>
 #include <string>
+#include <ctime>
 
 #ifdef _WIN32
 #include <Windows.h>
@@ -56,6 +57,10 @@ int main() {
     double Discharge_at    = .05; // Constant current discharge rate in amperes
     float Battery_volt    = 12;  // Battery volt returns from DC charge
 
+    // Timing variables
+    clock_t start, end;
+    double cpu_time;
+
     // +-----------------------
     // | Opening the COM port
     // +-----------------------
@@ -104,6 +109,7 @@ int main() {
     // back the voltage and current until batteries are completely discharged
     
     printf("Start test\n");
+    start = clock();
     while(Battery_volt>Eodv) {
         // Measure the battery voltage
         printf("- Measure the battery voltage\n");
@@ -128,5 +134,10 @@ int main() {
         printf("- Get answer  from DC Charge\n");
         n = read_rs232(cport_nr, buf, 4095);
         printf("- Actual current: %s\n", (char *) buf);
+
+        // Computed spend time
+        end = clock();
+        cpu_time = ((double) (end-start)) / CLOCKS_PER_SEC;
+        printf("- Used time: %f\n", cpu_time);
     }
 }
