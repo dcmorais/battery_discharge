@@ -51,9 +51,9 @@ int main() {
     // Variables to configure the DC charge
     char  command[512];          // Sends the command to the DC charge
     char  aux[512];              // Help to send complex word into the command
-    float Eodv            = 8.4; // End of discharge voltage for single cell
+    double Eodv            = 8.4; // End of discharge voltage for single cell
     int   Number_of_cells = 3;   // Number of cells to be discharged in series
-    float Discharge_at    = .05; // Constant current discharge rate in amperes
+    double Discharge_at    = .05; // Constant current discharge rate in amperes
     float Battery_volt    = 12;  // Battery volt returns from DC charge
 
     // +-----------------------
@@ -74,26 +74,26 @@ int main() {
     printf("Configure the DC charge\n");
     // Selects Chan 1; Disables input
     printf("- Selects Chan 1 and Disables input\n");
-    strcpy(command, "CHAN 1;:INPUT OFF");
+    strcpy_s(command, "CHAN 1;:INPUT OFF");
     printf("-- Send command: %s\n", command);
     send_rs232(cport_nr, command);
 
     // Sets CC mode
     printf("- Sets CC mode\n");
-    strcpy(command, "FUNCTION CURRENT");
+    strcpy_s(command, "FUNCTION CURRENT");
     printf("-- Send command: %s\n", command);
     send_rs232(cport_nr, command);
 
     // Sets the CC level
     printf("- Sets the CC level\n");
-    sprintf(aux, "CURRENT:LEVEL %f", Discharge_at);
-    strcpy(command, aux);
+    sprintf_s(aux, "CURRENT:LEVEL %f", Discharge_at);
+    strcpy_s(command, aux);
     printf("-- Send command: %s\n", command);
     send_rs232(cport_nr, command);
 
     // Enables the input
     printf("- Enables input\n");
-    strcpy(command, "INPUT ON");
+    strcpy_s(command, "INPUT ON");
     printf("-- Send command: %s\n", command);
     send_rs232(cport_nr, command);
 
@@ -107,7 +107,7 @@ int main() {
     while(Battery_volt>Eodv) {
         // Measure the battery voltage
         printf("- Measure the battery voltage\n");
-        strcpy(command, "MEASURE:VOLTAGE?");
+        strcpy_s(command, "MEASURE:VOLTAGE?");
         printf("-- Send command: %s\n", command);
         send_rs232(cport_nr, command);
 
@@ -120,7 +120,7 @@ int main() {
 
         // Measure the current
         printf("- Measure the current\n");
-        strcpy(command, "MEASURE:CURRENT?");
+        strcpy_s(command, "MEASURE:CURRENT?");
         printf("-- Send command: %s\n", command);
         send_rs232(cport_nr, command);
 
