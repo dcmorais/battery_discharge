@@ -51,13 +51,13 @@ int main() {
     char mode[]={'8','n','1',0}; //{data, parity, stop, }
 
     // Variables to configure the DC charge
-    char  command[512];          // Sends the command to the DC charge
-    char  aux[512];              // Help to send complex word into the command
+    char   command[512];          // Sends the command to the DC charge
+    char   aux[512];              // Help to send complex word into the command
     double Eodv            = 8.4; // End of discharge voltage for single cell
-    int   Number_of_cells = 3;   // Number of cells to be discharged in series
+    int    Number_of_cells = 3;   // Number of cells to be discharged in series
     double Discharge_at    = .05; // Constant current discharge rate in amperes
-    float Battery_volt    = 12;  // Battery volt returns from DC charge
-    float Battery_curr;          // Battery current messured 
+    float  Battery_volt    = 12;  // Battery volt returns from DC charge
+    float  Battery_curr;          // Battery current messured 
 
     // Timing variables
     clock_t start, end;
@@ -114,7 +114,7 @@ int main() {
     // back the voltage and current until batteries are completely discharged
     
     // Open file
-    sprintf_s(aux, "save_curr_%f", Discharge_at);
+    sprintf_s(aux, "save_curr_%f.txt", Discharge_at);
     file.open(aux, std::ofstream::out);
 
     printf("Start test\n");
