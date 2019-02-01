@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <cstring>
 #include <string>
 #include <ctime>
@@ -56,10 +57,14 @@ int main() {
     int   Number_of_cells = 3;   // Number of cells to be discharged in series
     double Discharge_at    = .05; // Constant current discharge rate in amperes
     float Battery_volt    = 12;  // Battery volt returns from DC charge
+    float Battery_curr;          // Battery current messured 
 
     // Timing variables
     clock_t start, end;
     double cpu_time;
+
+    // Writing into a file
+    std::ofstream file;
 
     // +-----------------------
     // | Opening the COM port
@@ -108,6 +113,10 @@ int main() {
     // Starts test routine that continuously measures and reads
     // back the voltage and current until batteries are completely discharged
     
+    // Open file
+    sprintf_s(aux, "save_curr_%f", Discharge_at);
+    file.open(aux, std::ofstream::out);
+
     printf("Start test\n");
     start = clock();
     while(Battery_volt>Eodv) {
@@ -134,10 +143,16 @@ int main() {
         printf("- Get answer  from DC Charge\n");
         n = read_rs232(cport_nr, buf, 4095);
         printf("- Actual current: %s\n", (char *) buf);
+        Battery_curr = std::stof((char *)buf);
 
         // Computed spend time
         end = clock();
         cpu_time = ((double) (end-start)) / CLOCKS_PER_SEC;
         printf("- Used time: %f\n", cpu_time);
+
+        // Save received data into a file
+        file << Battery_curr << " " << cpu_time << std::endl;
     }
+
+    file.close();
 }
