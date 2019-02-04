@@ -22,7 +22,7 @@ void send_rs232(int cport_nr, char  command[512]){
 #endif
 };
 
-int read_rs232(int cport_nr, unsigned char *buf, int size) {
+float read_rs232(int cport_nr, unsigned char *buf, int size) {
     int n;
 
     printf("- Reading data from DC Charge\n");
@@ -31,13 +31,18 @@ int read_rs232(int cport_nr, unsigned char *buf, int size) {
     if (n > 0) {
         buf[n] = 0;   /* always put a "null" at the end of a string! */
     }
+    else if (n == 0) {
+        printf("ERROR: Received no value from DC charge!\n");
+        buf = (unsigned char *) "0";
+    }
+    std::cout << buf << std::endl;
 
 #ifdef _WIN32
         Sleep(100);
 #else
         usleep(100000);  /* sleep for 100 milliSeconds */
 #endif
-    return n;
+    return std::stof((char *)buf);
 }
 
 int main() {
@@ -46,7 +51,11 @@ int main() {
     // +-------------------
     // RS-232 Configuration
     int n,
-            cport_nr=0,        /* /dev/ttys0 (com1 on windows) */
+            cport_nr=7,        /* /dev/ttys0 (com1 on windows) */
+                               /*{"\\\\.\\COM1",  "\\\\.\\COM2",  "\\\\.\\COM3",  "\\\\.\\COM4",
+                                  "\\\\.\\COM5",  "\\\\.\\COM6",  "\\\\.\\COM7",  "\\\\.\\COM8",
+                                  "\\\\.\\COM9",  "\\\\.\\COM10", "\\\\.\\COM11", "\\\\.\\COM12",
+                                  "\\\\.\\COM13", "\\\\.\\COM14", "\\\\.\\COM15", "\\\\.\\COM16"};*/
             bdrate=9600;       /* 9600 baud */
 
     unsigned char buf[4096];
@@ -127,9 +136,9 @@ int main() {
         send_rs232(cport_nr, command);
 
         // Get answer  from DC Charge
-        n = read_rs232(cport_nr, buf, 4095);
-        printf("- Total cell voltage: %s\n", (char *) buf);
-        Battery_volt = std::stof((char *)buf);
+        Battery_volt = read_rs232(cport_nr, buf, 4095);
+        printf("- Total cell voltage: %f\n",  Battery_volt);
+        //Battery_volt = std::stof((char *)buf);
 
 
         // Measure the current
@@ -138,8 +147,9 @@ int main() {
         send_rs232(cport_nr, command);
 
         // Get answer  from DC Charge
-        n = read_rs232(cport_nr, buf, 4095);
-        Battery_curr = std::stof((char *)buf);
+        Battery_curr = read_rs232(cport_nr, buf, 4095);
+        printf("- Actual current: %f\n", Battery_curr);
+        //Battery_curr = std::stof((char *)buf);
 
         // Computed spend time
         end = clock();
