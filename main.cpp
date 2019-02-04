@@ -13,6 +13,7 @@
 #include "rs232.h"
 
 void send_rs232(int cport_nr, char  command[512]){
+    printf("-- Send command: %s\n", command);
     RS232_cputs(cport_nr, command);
 #ifdef _WIN32
     Sleep(1000);
@@ -23,6 +24,8 @@ void send_rs232(int cport_nr, char  command[512]){
 
 int read_rs232(int cport_nr, unsigned char *buf, int size) {
     int n;
+
+    printf("- Reading data from DC Charge\n");
     n = RS232_PollComport(cport_nr, buf, size);
 
     if (n > 0) {
@@ -84,29 +87,25 @@ int main() {
     printf("Configure the DC charge\n");
     // Selects Chan 1; Disables input
     printf("- Selects Chan 1 and Disables input\n");
-    strcpy_s(command, "CHAN 1;:INPUT OFF");
-    printf("-- Send command: %s\n", command);
+    strcpy(command, "CHAN 1;:INPUT OFF");
     send_rs232(cport_nr, command);
 
     // Sets CC mode
     printf("- Sets CC mode\n");
-    strcpy_s(command, "FUNCTION CURRENT");
-    printf("-- Send command: %s\n", command);
+    strcpy(command, "FUNCTION CURRENT");
     send_rs232(cport_nr, command);
 
     // Sets the CC level
     printf("- Sets the curr level\n");
     printf("-- Type the current: ");
     std::cin >> Discharge_at;
-    sprintf_s(aux, "CURRENT:LEVEL %f", Discharge_at);
-    strcpy_s(command, aux);
-    printf("-- Send command: %s\n", command);
+    sprintf(aux, "CURRENT:LEVEL %f", Discharge_at);
+    strcpy(command, aux);
     send_rs232(cport_nr, command);
 
     // Enables the input
     printf("- Enables input\n");
-    strcpy_s(command, "INPUT ON");
-    printf("-- Send command: %s\n", command);
+    strcpy(command, "INPUT ON");
     send_rs232(cport_nr, command);
 
     // +--------------------------
@@ -116,7 +115,7 @@ int main() {
     // back the voltage and current until batteries are completely discharged
     
     // Open file
-    sprintf_s(aux, "save_curr_%f.txt", Discharge_at);
+    sprintf(aux, "save_curr_%f.txt", Discharge_at);
     file.open(aux, std::ofstream::out);
 
     printf("Start test\n");
@@ -124,12 +123,10 @@ int main() {
     while(Battery_volt>Eodv) {
         // Measure the battery voltage
         printf("- Measure the battery voltage\n");
-        strcpy_s(command, "MEASURE:VOLTAGE?");
-        printf("-- Send command: %s\n", command);
+        strcpy(command, "MEASURE:VOLTAGE?");
         send_rs232(cport_nr, command);
 
         // Get answer  from DC Charge
-        printf("- Get answer  from DC Charge\n");
         n = read_rs232(cport_nr, buf, 4095);
         printf("- Total cell voltage: %s\n", (char *) buf);
         Battery_volt = std::stof((char *)buf);
@@ -137,14 +134,11 @@ int main() {
 
         // Measure the current
         printf("- Measure the current\n");
-        strcpy_s(command, "MEASURE:CURRENT?");
-        printf("-- Send command: %s\n", command);
+        strcpy(command, "MEASURE:CURRENT?");
         send_rs232(cport_nr, command);
 
         // Get answer  from DC Charge
-        printf("- Get answer  from DC Charge\n");
         n = read_rs232(cport_nr, buf, 4095);
-        printf("- Actual current: %s\n", (char *) buf);
         Battery_curr = std::stof((char *)buf);
 
         // Computed spend time
