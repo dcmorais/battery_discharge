@@ -89,6 +89,8 @@ int main() {
         return(0);
     }
 
+    printf("Enable RST\n");
+    RS232_enableRTS(cport_nr);
 
     // +--------------------------
     // | Configure the DC charge
