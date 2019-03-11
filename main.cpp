@@ -36,7 +36,7 @@ int main() {
     // Variables to configure the DC charge
     char   command[512];          // Sends the command to the DC charge
     char   aux[512];              // Help to send complex word into the command
-    double Eodv            = 9; // End of discharge voltage for single cell
+    double Eodv            = 10.5;// End of discharge voltage for single cell
     int    Number_of_cells = 3;   // Number of cells to be discharged in series
     double Discharge_at    = .05; // Constant current discharge rate in amperes
     double Battery_volt    = 11.55;// Battery volt returns from DC charge
