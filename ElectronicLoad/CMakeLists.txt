@@ -1,1 +1,1 @@
-add_library(ElectronicLoad  electronic_load.cpp electronic_load.h communication_rs232.h communication_rs232.cpp)
+add_library(ElectronicLoad  electronic_load.cpp electronic_load.h communication_rs232.h communication_rs232.cpp electronic_load_tests.h electronic_load_tests.cpp)
