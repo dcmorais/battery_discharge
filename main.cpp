@@ -1,4 +1,4 @@
-    #include <iostream>
+#include <iostream>
 #include <fstream>
 #include <cstring>
 #include <string>
@@ -12,40 +12,7 @@
 #include <unistd.h>
 #endif
 
-#include "rs232.h"
-
-void send_rs232(int cport_nr, char  command[512]){
-    printf("-- Send command: %s", command);
-    RS232_cputs(cport_nr, command);
-#ifdef _WIN32
-    Sleep(1000);
-#else
-    usleep(100000);  /* sleep for 100 milliSeconds */
-#endif
-};
-
-double read_rs232(int cport_nr, unsigned char *buf, int size) {
-    int n;
-
-    printf("- Reading data from DC Charge\n");
-    n = RS232_PollComport(cport_nr, buf, size);
-
-    if (n > 0) {
-        buf[n] = 0;   /* always put a "null" at the end of a string! */
-    }
-    else if (n == 0) {
-        printf("ERROR: Received no value from DC charge!\n");
-        buf = (unsigned char *) "0";
-    }
-    std::cout << buf << std::endl;
-
-#ifdef _WIN32
-        Sleep(100);
-#else
-        usleep(100000);  /* sleep for 100 milliSeconds */
-#endif
-    return std::stof((char *)buf);
-}
+#include "electronic_load.h"
 
 int main() {
     using namespace std;
@@ -79,6 +46,10 @@ int main() {
     high_resolution_clock::time_point start_clk, end_clk;
     duration<double>                  cpu_time;
 
+
+    //Define Eletronic Load
+    electronic_load electronic_load(cport_nr);
+
     // Writing into a file
     ofstream file;
 
@@ -87,7 +58,7 @@ int main() {
     // | Opening the COM port
     // +-----------------------
     printf("Opening the COM port\n");
-    if(RS232_OpenComport(cport_nr, bdrate, mode))
+    if(open_comport(cport_nr, bdrate, mode))
     {
         printf("can not open comport\n");
 
@@ -103,50 +74,23 @@ int main() {
     printf("Configure the DC charge\n");
     // Selects Chan 1; Disables input
     printf("- Selects Chan 1 and Disables input\n");
-    strcpy(command, "CHAN 1;:INPUT OFF\n");
-    send_rs232(cport_nr, command);
-    memset(command, 0, sizeof(command)); //clean command
+    electronic_load.select_chan(1);
+    electronic_load.disable_inputs();
 
     // Sets CC mode
     printf("- Sets CC mode\n");
-    strcpy(command, "FUNCTION CURRENT\n");
-    send_rs232(cport_nr, command);
-    memset(command, 0, sizeof(command)); //clean command
+    electronic_load.set_cc_mode();
 
     // Sets the CC level
     printf("- Sets the curr level\n");
     printf("-- Type the current: ");
     std::cin >> Discharge_at;
-    sprintf(aux, "CURRENT:LEVEL %f\n", Discharge_at);
-    strcpy(command, aux);
-    send_rs232(cport_nr, command);
-    memset(command, 0, sizeof(command)); //clean command
-
-/*
-    printf("- Measure the battery voltage\n");
-    strcpy(command, "MEASURE:VOLTAGE?\n");
-    send_rs232(cport_nr, command);
-    memset(command, 0, sizeof(command)); //clean command
-
-    // Get answer  from DC Charge
-    Battery_volt = read_rs232(cport_nr, buf, 4095);
-    printf("- Total cell voltage: %g\n",  Battery_volt);
-            printf("- Measure the current\n");
-            strcpy(command, "MEASURE:CURRENT?\n");
-            send_rs232(cport_nr, command);
-            memset(command, 0, sizeof(command)); //clean command
-
-            // Get answer  from DC Charge
-            Battery_curr = read_rs232(cport_nr, buf, 4095);
-            printf("- Actual current: %g\n", Battery_curr);
-
-*/
+    electronic_load.set_curr_level(Discharge_at);
 
     // Enables the input
     printf("- Enables input\n");
-    strcpy(command, "INPUT ON\n");
-    send_rs232(cport_nr, command);
-    memset(command, 0, sizeof(command)); //clean command
+    electronic_load.enable_inputs();
+
     // +--------------------------
     // | Start Test
     // +--------------------------
@@ -162,23 +106,12 @@ int main() {
     while(Battery_volt>Eodv) {
         // Measure the battery voltage
         printf("- Measure the battery voltage\n");
-        strcpy(command, "MEASURE:VOLTAGE?\n");
-        send_rs232(cport_nr, command);
-        memset(command, 0, sizeof(command)); //clean command
-
-        // Get answer  from DC Charge
-        Battery_volt = read_rs232(cport_nr, buf, 4095);
-        //Battery_volt = stof((char *)buf);
-
+        Battery_volt = electronic_load.measure_battery_volt();
 
         // Measure the current
         printf("- Measure the current\n");
         strcpy(command, "MEASURE:CURRENT?\n");
-        send_rs232(cport_nr, command);
-        memset(command, 0, sizeof(command)); //clean command
-
-        // Get answer  from DC Charge
-        Battery_curr = read_rs232(cport_nr, buf, 4095);
+        Battery_curr = electronic_load.measure_battery_curr();
 
         //Print
         printf("- Total cell voltage: %f\n",  Battery_volt);
@@ -203,9 +136,7 @@ int main() {
     }
 
     printf("- Disables input\n");
-    strcpy(command, ":INPUT OFF\n");
-    send_rs232(cport_nr, command);
-    memset(command, 0, sizeof(command)); //clean command
+    electronic_load.disable_inputs();
 
     file.close();
 
