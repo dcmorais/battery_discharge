@@ -40,3 +40,27 @@ double read_rs232(int cport_nr, unsigned char *buf, int size) {
 int open_comport(int cport_nr, int bdrate, const char *mode){
     return RS232_OpenComport(cport_nr, bdrate, mode);
 }
+
+void close_comport(int cport_nr){
+    RS232_CloseComport(cport_nr);
+}
+
+double read_array_rs232(int cport_nr, unsigned char *buf, int size) {
+    int n;
+
+    printf("- Reading data from DC Charge\n");
+    n = RS232_PollComport(cport_nr, buf, size);
+    if (n > 0) {
+        buf[n] = 0;   /* always put a "null" at the end of a string! */
+    }
+    else if (n == 0) {
+        printf("ERROR: Received no value from DC charge!\n");
+        buf = (unsigned char *) "0";
+    }
+    std::cout << buf << std::endl;
+    std::cout << n << std::endl;
+
+
+    usleep(60000);  /* sleep for 100 milliSeconds */
+    return 2.0;//std::stof((char *)buf);
+}
