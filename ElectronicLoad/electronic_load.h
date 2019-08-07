@@ -11,10 +11,13 @@
 
 #include "communication_rs232.h"
 
+using namespace std;
+
 class electronic_load {
     int cport_nr;
 
 public:
+    int cnt;
     electronic_load(int );
 
     void select_chan(int );
@@ -22,9 +25,11 @@ public:
     void set_curr_level(double );
     void enable_inputs();
     void disable_inputs();
+    void set_samples();
 
     double measure_battery_volt();
     double measure_battery_curr();
+    void measure_battery_volt_array(ofstream &);
 
 };
 
